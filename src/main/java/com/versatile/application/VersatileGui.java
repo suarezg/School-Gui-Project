@@ -1,166 +1,187 @@
 package com.versatile.application;
 
-import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Collection;
 
-
-
-
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 import net.miginfocom.swing.MigLayout;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
-import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
-import com.jme3.light.DirectionalLight;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeCanvasContext;
 
 public class VersatileGui {
 
-	private static JmeCanvasContext context;
-	private static Canvas canvas;
-	private static Application app;
 	private static JFrame frame;
 	private static JPanel panel;
-	static AnimControl control;
-	static AnimChannel channel;
-	
+	private static JLabel imageLabel;
+	private static JTextField input1;
+	private static JTextField input2;
+	private static JTextArea consoleOut;
 	
 	private static void createFrame() {
 		
 		frame = new JFrame("Versatile - Buhler Industries");
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		//frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("src/main/resources/com/application/images/logo.png")));
+		//frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(
+		//		"src\\main\\resources\\com\\versatile\\application\\images\\logo.png")));
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent event) {
-				app.stop();
+				
 			}
 		});
 		panel = new JPanel(new MigLayout());
 		createRadios();
+		createInputs();
+		createButtons();
+		createImageFrame();
+		createTextArea();
 		frame.add(panel);
 		frame.pack();
 		
-		createCanvas();
-		//createModel();
-		
 	}
 	
-	private static void createCanvas() {
-		AppSettings settings = new AppSettings(true);
-		settings.setWidth(640);
-		settings.setHeight(480);
-		 try{
-	            Class<? extends Application> clazz = (Class<? extends Application>) Class.forName("com.versatile.application.BaseApplication");
-	            app = clazz.newInstance();
-	        }catch (ClassNotFoundException ex){
-	            ex.printStackTrace();
-	        }catch (InstantiationException ex){
-	            ex.printStackTrace();
-	        }catch (IllegalAccessException ex){
-	            ex.printStackTrace();
-	        }
-		
-		 app.setSettings(settings);
-		 app.createCanvas();
-		 app.startCanvas();
-		 loadModel("C:\\Users\\ginosuarez\\workspace\\versatile-gui\\src\\main\\resources\\com\\versatile\\application\\models\\Oto.mesh.xml");
-		 context = (JmeCanvasContext) app.getContext();
-		 canvas = context.getCanvas();
-		 canvas.setSize(settings.getWidth(), settings.getHeight());		 
-	}
 	
-	private static void loadModel(String modelPath) {
-		Node player;
-		SimpleApplication simpleApp = (SimpleApplication) app;
-		Node root = simpleApp.getRootNode();
-		refreshCanvas(root);
-		player = (Node) simpleApp.getAssetManager().loadModel(modelPath);
-		player.setLocalScale(0.5f);
-		root.attachChild(player);
-		control = player.getControl(AnimControl.class);
-		channel= control.createChannel();
-		channel.setAnim("stand");
-	}
-	
-	private static void refreshCanvas(Node root) {
-		List<Spatial> spatials = root.getChildren();
-		for (Spatial s : spatials) {
-			s.removeFromParent();
-		}
-	}
 	
 	private static void createRadios() {
 	
 		JRadioButton td600 = new JRadioButton("Model TD600");
 		JRadioButton td700 = new JRadioButton("Model TD700");
+		ButtonGroup radioGroup = new ButtonGroup();
+		radioGroup.add(td600);
+		radioGroup.add(td700);
 		
-		td600.addActionListener(actionListener);
-		td700.addActionListener(actionListener);
+		td600.addActionListener(radioListener);
+		td700.addActionListener(radioListener);
 		
 		panel.add(td600);
 		panel.add(td700, "wrap");
 	}
 	
-	private static ActionListener actionListener = new ActionListener() {
+	private static ActionListener radioListener = new ActionListener() {
 
 		public void actionPerformed(ActionEvent event) {
-			// TODO Auto-generated method stub
 			String model = event.getActionCommand();
-			if (model.equals("TD600")) {
-				loadModel("com/versatile/application/models/Oto.mesh.xml");
+			if (model.contains("TD600")) {
+				updateImage("src/main/resources/com/versatile/application/images/td600.jpg");
 			}
-			else if (model.equals("TD700")) {
-				loadModel("com/versatile/application/models/Oto.mesh.xml");
+			else if (model.contains("TD700")) {
+				updateImage("src/main/resources/com/versatile/application/images/td700.jpg");
 			}
 		}
 		
 	};
-		
-	public static void startApp() {
-		app.startCanvas();
-		app.enqueue(new Callable<Void>() {
-
-			public Void call() throws Exception {
-				// TODO Auto-generated method stub
-				if ( app instanceof SimpleApplication ) {
-					SimpleApplication simpleApp = (SimpleApplication) app;
-					simpleApp.getFlyByCamera().setDragToRotate(true);
-				}
-				return null;
-			}
-			
-		});
+	
+	private static void updateImage(String imagePath) {
+		imageLabel.setIcon(new ImageIcon(imagePath));
+		frame.repaint();
 	}
 	
-	public static void main(String[] args) {
+	private static void createButtons() {
+		JButton run = new JButton("Run");
+		JButton clear = new JButton("Clear");
+		run.addActionListener(buttonListener);
+		clear.addActionListener(buttonListener);
+		panel.add(run);
+		panel.add(clear, "wrap");
+	}
+	
+	private static ActionListener buttonListener = new ActionListener() {
+		public void actionPerformed(ActionEvent event) {
+			String command = event.getActionCommand();
+			if (command.contains("Run")) {
+				calculate();
+			}
+			else if (command.contains("Clear")) {
+				clearInputs();
+			}
+			
+		}
+	};
+	
+	private static void calculate() {
+		try {
+			int num1 = Integer.parseInt(input1.getText());
+			int num2 = Integer.parseInt(input2.getText());
+			int result = num1 + num2;
+			consoleOut.setText(result+"");
+		}
+		catch(NumberFormatException nfe) {
+			StringBuilder errorMessage = new StringBuilder();
+			StackTraceElement[] trace = nfe.getStackTrace();
+			for (int i =0; (i < trace.length) && (i < 10); i++) {
+				errorMessage.append(trace[i] +"\n");
+			}
+			errorMessage.append("...\n");
+			errorMessage.append(nfe.getMessage());
+			consoleOut.setForeground(Color.RED);
+			consoleOut.append(errorMessage.toString());
+		}
+		
+	}
+	
+	private static void clearInputs() {
+		input1.setText("");
+		input2.setText("");
+	}
+	
+	private static void createInputs() {
+		final int INPUT_LENGTH = 100;
+		final int INPUT_HEIGHT = 25;
+		input1 = new JTextField("0");
+		input2 = new JTextField("0");
+		input1.setMinimumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
+		input1.setMaximumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
+		input2.setMinimumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
+		input2.setMaximumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
+		panel.add(input1);
+		panel.add(input2,"wrap");
+	}
+		
+	
+	private static void createImageFrame() {
+		imageLabel = new JLabel();
+		panel.add(imageLabel, "span");
+	}
+	
+	private static void createTextArea() {
+		final int CONSOLE_LENGTH = 500;
+		final int CONSOLE_HEIGHT = 250;
+		consoleOut = new JTextArea();
+		consoleOut.setVisible(true);
+		consoleOut.setEditable(false);
+		JScrollPane scroll = new JScrollPane(consoleOut);
+		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setMinimumSize(new Dimension(CONSOLE_LENGTH, CONSOLE_HEIGHT));
+		scroll.setMaximumSize(new Dimension(CONSOLE_LENGTH, CONSOLE_HEIGHT));
+		
+		panel.add(scroll, "span");
+	}
 
+	
+	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				createFrame();
-				panel.add(canvas);
-				frame.setVisible(true);
-				
+				frame.setVisible(true);			
 			}
 		});
 	}
