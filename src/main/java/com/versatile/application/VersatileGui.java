@@ -7,7 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -58,7 +60,9 @@ public class VersatileGui {
 		
 	}
 	
-	
+	private static void createMenuBar() {
+		
+	}
 	
 	private static void createRadios() {
 	
@@ -117,23 +121,41 @@ public class VersatileGui {
 	};
 	
 	private static void calculate() {
-		try {
-			int num1 = Integer.parseInt(input1.getText());
-			int num2 = Integer.parseInt(input2.getText());
-			int result = num1 + num2;
-			consoleOut.setText(result+"");
-		}
-		catch(NumberFormatException nfe) {
-			StringBuilder errorMessage = new StringBuilder();
-			StackTraceElement[] trace = nfe.getStackTrace();
-			for (int i =0; (i < trace.length) && (i < 10); i++) {
-				errorMessage.append(trace[i] +"\n");
+		Thread calculateThread = new Thread(new Runnable(){
+
+			public void run() {
+				// TODO Auto-generated method stub
+				final int stackMax = 10;
+				try {
+					int num1 = Integer.parseInt(input1.getText());
+					int num2 = Integer.parseInt(input2.getText());
+					int result = num1 + num2;
+					Thread.sleep(10000);
+					consoleOut.setText(result+"");
+				}
+				catch(NumberFormatException nfe) {
+					StringBuilder errorMessage = new StringBuilder();
+					StackTraceElement[] trace = nfe.getStackTrace();
+					errorMessage.append("\n  "+getTimeStamp());
+					for (int i =0; (i < trace.length) && (i < stackMax); i++) {
+						errorMessage.append("\t"+trace[i] +"\n");
+						if (i == stackMax-1) {
+							errorMessage.append("\t...\n");
+						}
+					}
+					errorMessage.append("\t...\n");
+					errorMessage.append(nfe.getMessage());
+					consoleOut.setForeground(Color.RED);
+					consoleOut.append(errorMessage.toString());
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			errorMessage.append("...\n");
-			errorMessage.append(nfe.getMessage());
-			consoleOut.setForeground(Color.RED);
-			consoleOut.append(errorMessage.toString());
-		}
+			
+		});
+		calculateThread.start();
+		
 		
 	}
 	
@@ -174,6 +196,13 @@ public class VersatileGui {
 		scroll.setMaximumSize(new Dimension(CONSOLE_LENGTH, CONSOLE_HEIGHT));
 		
 		panel.add(scroll, "span");
+	}
+	
+	private static String getTimeStamp() {
+		String stamp;
+		Date date = new Date();
+		stamp = (new Timestamp(date.getTime())).toString();
+		return stamp;
 	}
 
 	
