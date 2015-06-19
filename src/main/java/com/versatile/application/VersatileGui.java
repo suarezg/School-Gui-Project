@@ -114,7 +114,7 @@ public class VersatileGui {
 	private static ActionListener openListener = new ActionListener() {
 		public void actionPerformed(ActionEvent arg0) {
 			fileChooser = new JFileChooser(AppConstants.PROJECT_DIRECTORY+"\\target");
-			fileChooser.showOpenDialog(fileChooser);
+			fileChooser.showOpenDialog(frame);
 		}
 	};
 	
@@ -124,7 +124,7 @@ public class VersatileGui {
 			// TODO Auto-generated method stub
 			;
 			fileChooser = new JFileChooser(AppConstants.PROJECT_DIRECTORY+"\\target");
-			fileChooser.showSaveDialog(fileChooser);
+			fileChooser.showSaveDialog(frame);
 		}
 		
 	};
@@ -321,6 +321,7 @@ public class VersatileGui {
 	
 	/*---------------------------------------------------------------------*/
 	
+	/*-----------------------INPUT PARAMETERS-------------------------*/
 	private static void createInputs() {
 		final int INPUT_LENGTH = 100;
 		final int INPUT_HEIGHT = 25;
@@ -333,13 +334,15 @@ public class VersatileGui {
 		panel.add(input1);
 		panel.add(input2,"wrap");
 	}
-		
+	/*------------------------------------------------------------------------*/	
+	
 	
 	private static void createImageFrame() {
 		imageLabel = new JLabel();
 		panel.add(imageLabel, "span");
 	}
 	
+	/*------------------------------CONSOLE OUTPUT---------------------------------------*/
 	private static void createTextArea() {
 		final int CONSOLE_LENGTH = 1000;
 		final int CONSOLE_HEIGHT = 100;
@@ -355,6 +358,7 @@ public class VersatileGui {
 		
 		panel.add(scroll, "dock south");
 	}
+	/*----------------------------------------------------------------------------------------*/
 	
 	private static String getTimeStamp() {
 		String stamp;
