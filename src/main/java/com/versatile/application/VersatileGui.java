@@ -1,10 +1,13 @@
 package com.versatile.application;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -12,12 +15,15 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -26,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
@@ -41,17 +48,26 @@ public class VersatileGui {
 
 	private static JFrame frame;
 	private static JPanel panel;
+	private static JScrollPane scrollPane;
 	private static JMenuBar menuBar;
 	private static JPopupMenu popUpMenu;
 	private static JFileChooser fileChooser;
 	private static JLabel fileLabel;
 	private static JLabel imageLabel;
+	private static JComboBox modelList;
 	private static JTextField input1;
 	private static JTextField input2;
+	private static ButtonGroup group;
+	private static JRadioButton config1;
+	private static JRadioButton config2;
+	private static JRadioButton config3;
+	private static List<JRadioButton> configs;
 	private static JTextArea consoleOut;
 	private static String models[] = new String[] {"Select One...","Model 1", "Model 2", "Model 3",
 													"Model 4", "Model 5", "Model 6"};
 	private static String openFile = "";
+	private static JCheckBox counterbalance;
+	private static JTextField counterField;
 	
 	private static void createFrame() {
 		
@@ -74,10 +90,15 @@ public class VersatileGui {
 		//createRadios();
 		createConfigs();
 		createInputs();
+		createCheckbox();
 		createButtons();
 		createImageFrame();
 		createTextArea();
 		frame.add(panel);
+		scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	
+		frame.add(scrollPane, BorderLayout.WEST);
 		frame.pack();
 		
 	}
@@ -102,6 +123,12 @@ public class VersatileGui {
 		fileMenu.add(exit);
 		menuBar.add(fileMenu);
 		
+		JMenu helpMenu = new JMenu("Help");
+		JMenuItem about = new JMenuItem("About");
+		about.addActionListener(aboutListener);
+		helpMenu.add(about);
+		menuBar.add(helpMenu);
+				
 		frame.setJMenuBar(menuBar);
 	}
 	
@@ -125,6 +152,14 @@ public class VersatileGui {
 			;
 			fileChooser = new JFileChooser(AppConstants.PROJECT_DIRECTORY+"\\target");
 			fileChooser.showSaveDialog(frame);
+		}
+		
+	};
+	
+	private static ActionListener aboutListener = new ActionListener(){
+
+		public void actionPerformed(ActionEvent e) {
+			JOptionPane.showMessageDialog(frame, AppConstants.ABOUT_MESSAGE);
 		}
 		
 	};
@@ -177,14 +212,14 @@ public class VersatileGui {
 	
 	/*-----------------------------MODEL PICKER-------------------------------------*/
 	private static void createModelPicker() {
-		JComboBox modelList = new JComboBox(models);
+		modelList = new JComboBox(models);
 		modelList.addActionListener(modelListener);
 		panel.add(modelList, "span");
 
 	}
 	
 	private static ActionListener modelListener = new ActionListener() {
-
+		
 		public void actionPerformed(ActionEvent e) {
 			final String searchProperty = "selectedItemReminder=";
 			String properties =  e.getSource().toString();
@@ -199,16 +234,24 @@ public class VersatileGui {
 						+selectedItem+".jpg");
 			}
 		}
+	
+		/*For item listener implementation
+		public void itemStateChanged(ItemEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		*/
 		
 	};
 	/*-----------------------------------------------------------------------------------*/
 	
 	/*-------------------------------CONFIGURATION RADIO BUTTONS---------------------------------------*/
 	private static void createConfigs() {
-		JRadioButton config1 = new JRadioButton("Configuration 1");
-		JRadioButton config2 = new JRadioButton("Configuration 2");
-		JRadioButton config3 = new JRadioButton("Configuration 3");
-		ButtonGroup group = new ButtonGroup();
+		/*
+		config1 = new JRadioButton("Configuration 1");
+		config2 = new JRadioButton("Configuration 2");
+		config3 = new JRadioButton("Configuration 3");
+		group = new ButtonGroup();
 		
 		group.add(config1);
 		group.add(config2);
@@ -217,6 +260,18 @@ public class VersatileGui {
 		panel.add(config1);
 		panel.add(config2);
 		panel.add(config3,"wrap");
+		*/
+		
+		group = new ButtonGroup();
+		configs = new ArrayList<JRadioButton>();
+		for (int i = 0; i < AppConstants.CONFIGURATIONS.length; i++) {
+			configs.add(new JRadioButton(AppConstants.CONFIGURATIONS[i]));
+			group.add(configs.get(i));
+			if (i == (AppConstants.CONFIGURATIONS.length -1))
+				panel.add(configs.get(i), "wrap");
+			else
+				panel.add(configs.get(i));
+		}
 	}
 	/*----------------------------------------------------------------------------------*/
 	
@@ -273,50 +328,68 @@ public class VersatileGui {
 			}
 			else if (command.contains("Clear")) {
 				clearInputs();
+				clearConfigs();
+				resetDropdown();
 			}
 			
 		}
 	};
 	
 	private static void calculate() {
-		Thread calculateThread = new Thread(new Runnable(){
-			public void run() {
-				// TODO Auto-generated method stub
-				final int stackMax = 10;
-				try {
-					int num1 = Integer.parseInt(input1.getText());
-					int num2 = Integer.parseInt(input2.getText());
-					int result = num1 + num2;
-					consoleOut.append(result+"");
-				}
-				catch(NumberFormatException nfe) {
-					StringBuilder errorMessage = new StringBuilder();
-					StackTraceElement[] trace = nfe.getStackTrace();
-					errorMessage.append("\n  "+getTimeStamp());
-					for (int i =0; (i < trace.length) && (i < stackMax); i++) {
-						errorMessage.append("\t"+trace[i] +"\n");
-						if (i == stackMax-1) {
-							errorMessage.append("\t...\n");
-						}
+		if (Validator.checkConfig(configs) && Validator.checkModel(modelList)) {
+			Thread calculateThread = new Thread(new Runnable(){
+				public void run() {
+					// TODO Auto-generated method stub
+					final int stackMax = 10;
+					try {
+						int num1 = Integer.parseInt(input1.getText());
+						int num2 = Integer.parseInt(input2.getText());
+						int result = num1 + num2;
+						consoleOut.append(result+"");
 					}
-					errorMessage.append("\t...\n");
-					errorMessage.append(nfe.getMessage());
-					consoleOut.setForeground(Color.RED);
-					
-					consoleOut.append(errorMessage.toString());
+					catch(NumberFormatException nfe) {
+						StringBuilder errorMessage = new StringBuilder();
+						StackTraceElement[] trace = nfe.getStackTrace();
+						errorMessage.append("\n  "+getTimeStamp());
+						for (int i =0; (i < trace.length) && (i < stackMax); i++) {
+							errorMessage.append("\t"+trace[i] +"\n");
+							if (i == stackMax-1) {
+								errorMessage.append("\t...\n");
+							}
+						}
+						errorMessage.append("\t...\n");
+						errorMessage.append(nfe.getMessage());
+						consoleOut.setForeground(Color.RED);
+						
+						consoleOut.append(errorMessage.toString());
+					}
 				}
-			}
-			
-			
-		});
-		calculateThread.start();
-		
+				
+				
+			});
+			calculateThread.start();
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Error with Input", "Error", 
+					JOptionPane.ERROR_MESSAGE);
+		}
 		
 	}
 	
 	private static void clearInputs() {
 		input1.setText("");
 		input2.setText("");
+		counterField.setText("");
+		counterbalance.setSelected(false);
+		
+	}
+	
+	private static void clearConfigs() {
+		group.clearSelection();
+	}
+	
+	private static void resetDropdown() {
+		modelList.setSelectedIndex(0);
 	}
 	
 	/*---------------------------------------------------------------------*/
@@ -360,13 +433,42 @@ public class VersatileGui {
 	}
 	/*----------------------------------------------------------------------------------------*/
 	
+	private static void createCheckbox() {	
+		final int INPUT_LENGTH = 100;
+		final int INPUT_HEIGHT = 25;
+		counterbalance = new JCheckBox("Has Counterbalance?");
+		counterbalance.addItemListener(balanceListener);
+		counterField = new JTextField();
+		counterField.setMinimumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
+		counterField.setVisible(false);
+		
+		panel.add(counterbalance);
+		panel.add(counterField, "wrap");
+	}
+	
+	private static ItemListener balanceListener = new ItemListener() {
+
+		public void itemStateChanged(ItemEvent e) {
+			if (counterbalance.isSelected()) {
+				counterField.setVisible(true);
+			}
+			else {
+				counterField.setVisible(false);
+			}
+			
+		}
+		
+	};
+	
 	private static String getTimeStamp() {
 		String stamp;
 		Date date = new Date();
 		stamp = (new Timestamp(date.getTime())).toString();
 		return stamp;
 	}
-
+	
+	
+	
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
