@@ -41,12 +41,16 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
+import com.versatile.model.GraphicPane;
+
 import net.miginfocom.swing.MigLayout;
 
 
 public class VersatileGui {
 
+	
 	private static JFrame frame;
+	private static GraphicPane gPane;
 	private static JPanel panel;
 	private static JScrollPane scrollPane;
 	private static JMenuBar menuBar;
@@ -92,7 +96,8 @@ public class VersatileGui {
 		createInputs();
 		createCheckbox();
 		createButtons();
-		createImageFrame();
+		//createGraphic();
+		//createImageFrame();
 		createTextArea();
 		frame.add(panel);
 		scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -151,7 +156,10 @@ public class VersatileGui {
 			// TODO Auto-generated method stub
 			;
 			fileChooser = new JFileChooser(AppConstants.PROJECT_DIRECTORY+"\\target");
-			fileChooser.showSaveDialog(frame);
+			if (fileChooser.showSaveDialog(frame) ==JFileChooser.APPROVE_OPTION) {
+				fileChooser.get
+			}
+			
 		}
 		
 	};
@@ -291,7 +299,6 @@ public class VersatileGui {
 	}
 	
 	private static ActionListener radioListener = new ActionListener() {
-
 		public void actionPerformed(ActionEvent event) {
 			String model = event.getActionCommand();
 			if (model.contains("TD600")) {
@@ -301,7 +308,6 @@ public class VersatileGui {
 				updateImage("src/main/resources/com/versatile/application/images/td700.jpg");
 			}
 		}
-		
 	};
 	
 	private static void updateImage(String imagePath) {
@@ -428,11 +434,10 @@ public class VersatileGui {
 		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scroll.setMinimumSize(new Dimension(CONSOLE_LENGTH, CONSOLE_HEIGHT));
 		scroll.setMaximumSize(new Dimension(CONSOLE_LENGTH, CONSOLE_HEIGHT));
-		
 		panel.add(scroll, "dock south");
 	}
-	/*----------------------------------------------------------------------------------------*/
 	
+	/*----------------------------------------------------------------------------------------*/
 	private static void createCheckbox() {	
 		final int INPUT_LENGTH = 100;
 		final int INPUT_HEIGHT = 25;
@@ -440,14 +445,12 @@ public class VersatileGui {
 		counterbalance.addItemListener(balanceListener);
 		counterField = new JTextField();
 		counterField.setMinimumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
-		counterField.setVisible(false);
-		
+		counterField.setVisible(false);	
 		panel.add(counterbalance);
 		panel.add(counterField, "wrap");
 	}
 	
 	private static ItemListener balanceListener = new ItemListener() {
-
 		public void itemStateChanged(ItemEvent e) {
 			if (counterbalance.isSelected()) {
 				counterField.setVisible(true);
@@ -455,10 +458,14 @@ public class VersatileGui {
 			else {
 				counterField.setVisible(false);
 			}
-			
 		}
-		
 	};
+	
+	private static void createGraphic() {
+		gPane = new GraphicPane(panel);
+		gPane.setModel(AppConstants.PROJECT_DIRECTORY+
+				"\\src\\main\\resources\\com\\versatile\\application\\models\\Oto.mesh.xml");
+	}
 	
 	private static String getTimeStamp() {
 		String stamp;

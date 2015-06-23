@@ -33,5 +33,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/ginosuarez/Documents/Programming/JMonkeyEngine/jMonkeyEngine3.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/Java3D/1.5.1/lib/ext/j3dcore.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/Java3D/1.5.1/lib/ext/j3dutils.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/Java3D/1.5.1/lib/ext/vecmath.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

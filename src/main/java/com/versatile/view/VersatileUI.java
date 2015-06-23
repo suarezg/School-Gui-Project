@@ -1,11 +1,13 @@
 package com.versatile.view;
 
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
@@ -38,11 +40,18 @@ public class VersatileUI {
 	private List<JRadioButton> configs;
 	private JTextArea consoleOut;
 	
+	private Map<String, Component> components;
+	
+	
 	private static String openFile = "";
 	
 	
 	public VersatileUI() {
 		createFrame();
+	}
+	
+	public Map<String, Component> getComponents(){
+		return components;
 	}
 	
 	private void createFrame() {
