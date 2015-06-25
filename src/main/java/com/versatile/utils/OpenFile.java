@@ -1,4 +1,4 @@
-package com.versatile.model;
+package com.versatile.utils;
 
 import java.awt.Component;
 import java.io.BufferedReader;

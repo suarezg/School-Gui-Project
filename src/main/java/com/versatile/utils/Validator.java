@@ -1,4 +1,4 @@
-package com.versatile.application;
+package com.versatile.utils;
 
 import java.util.List;
 
