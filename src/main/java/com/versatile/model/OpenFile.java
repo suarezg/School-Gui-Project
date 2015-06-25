@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -35,7 +36,8 @@ public class OpenFile {
 			while (line != null) {
 				String key = line.substring(0, line.indexOf(":"));
 				String value = line.substring(line.indexOf(":")+1);
-				fillParams(components, key.trim(), value.trim());
+				Component comp = components.get(key);
+				fillParams(comp, key.trim(), value.trim());
 				line = reader.readLine();
 			}
 		} catch (IOException e) {
@@ -44,8 +46,7 @@ public class OpenFile {
 		}
 	}
 	
-	private static void fillParams(Map<String, Component> components, String key, String value) {
-		Component comp = components.get(key);
+	private static void fillParams(Component comp, String key, String value) {
 		if ( comp != null ) {
 			if (comp instanceof JRadioButton) {
 				JRadioButton radio = (JRadioButton) comp;
@@ -59,6 +60,11 @@ public class OpenFile {
 			else if (comp instanceof JTextField) {
 				JTextField textfield = (JTextField) comp;
 				textfield.setText(value);
+			}
+			else if ( comp instanceof JCheckBox ) {
+				JCheckBox checkbox = (JCheckBox) comp;
+				boolean bool = Boolean.parseBoolean(value);
+				checkbox.setSelected(bool);
 			}
 		}
 	}

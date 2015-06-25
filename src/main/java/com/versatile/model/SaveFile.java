@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.Icon;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -18,7 +20,6 @@ import javax.swing.JTextField;
 
 public class SaveFile {
 
-	
 	public static void save(Map<String, Component> components, JFrame frame, String startPath) {
 		JFileChooser jfc = new JFileChooser();
 		int result = jfc.showSaveDialog(frame);
@@ -26,17 +27,15 @@ public class SaveFile {
 			File file = jfc.getSelectedFile();
 			if (validSave(jfc, file)) 
 				writeFile(components, file);
-			
 		}
 	}
 	
 	private static boolean validSave(JFileChooser jfc, File file) {
 		boolean canSave = false;
-		boolean fileExists = file.exists();
-		int confirm;
-		if (fileExists) {
-			confirm = JOptionPane.showConfirmDialog(jfc, "A file with this name already exits. "+
-						"Would you like to Overwrite?");
+		if (file.exists()) {
+			int confirm = JOptionPane.showConfirmDialog(jfc, "A file with this name already exits. "+
+						"Would you like to Overwrite?","Save Confirmation", JOptionPane.OK_CANCEL_OPTION, 
+												JOptionPane.WARNING_MESSAGE, null);
 			if (confirm == JOptionPane.OK_OPTION)
 				canSave = true;
 		}
@@ -68,7 +67,12 @@ public class SaveFile {
 					JTextField textfield = (JTextField) comp;
 					writer.append(key+": " + textfield.getText() 
 							+System.getProperty("line.separator"));
-				}	
+				}
+				else if ( comp instanceof JCheckBox ) {
+					JCheckBox checkbox = (JCheckBox) comp;
+					writer.append(key+": " + checkbox.isSelected() 
+					+ System.getProperty("line.separtor"));
+				}
 			}
 			writer.close();
 		} catch (IOException e) {

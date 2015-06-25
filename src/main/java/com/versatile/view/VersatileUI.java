@@ -3,6 +3,7 @@ package com.versatile.view;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -30,6 +32,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.versatile.application.AppConstants;
+import com.versatile.controller.VersatileController;
 import com.versatile.model.OpenFile;
 import com.versatile.model.SaveFile;
 import com.versatile.model.VersatileModel;
@@ -54,7 +57,7 @@ public class VersatileUI {
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		//frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(
-		//		"src\\main\\resources\\com\\versatile\\application\\images\\logo.png")));
+			//	"\\com\\versatile\\application\\images\\logo.png")));
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent event) {
@@ -70,6 +73,7 @@ public class VersatileUI {
 		createConfigs();
 		createInputs();
 		createButtons();
+		createConditionals();
 		frame.add(panel);
 		frame.setVisible(true);
 	}
@@ -181,10 +185,28 @@ public class VersatileUI {
 		panel.add(clear, "wrap");
 	}
 	
+	private void createConditionals() {
+		final int INPUT_LENGTH = 100;
+		final int INPUT_HEIGHT = 25;
+		JCheckBox hasCounter = new JCheckBox("Has CounterBalance?");
+		hasCounter.setName("Counter Balance Checkbox");
+		JTextField counterValue = new JTextField();
+		counterValue.setMinimumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
+		counterValue.setName("Counter Balance Value");
+		counterValue.setVisible(false);	
+		
+		model.addParameter(hasCounter.getName(), hasCounter);
+		model.addParameter(counterValue.getName(), counterValue);
+		panel.add(hasCounter);
+		panel.add(counterValue, "wrap");
+	}
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				VersatileUI ui = new VersatileUI();
+				VersatileModel model = new VersatileModel(ui);
+				VersatileController controller = new VersatileController(model, ui);
 			}
 		});
 	}
