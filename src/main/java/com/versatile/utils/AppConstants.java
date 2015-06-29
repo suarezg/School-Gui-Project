@@ -14,4 +14,6 @@ public class AppConstants {
 	public final static String ABOUT_MESSAGE = "Property of Versatile-Buhler Industries"
 												+"\nDeveloped by the University of Manitoba";
 	
+	
+	
 }

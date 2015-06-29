@@ -16,6 +16,15 @@ public class VersatileBackendImpl implements VersatileBackend{
 	
 	public void evaluate() {
 		// TODO Auto-generated method stub
+		String model = ui.getSelectedModel();
+		String config = ui.getSelectedConfiguration();
+		double[] params = ui.getInputs();
+		
+		/*TODO
+		 * Use matlabcontrol to send these parameters to the 
+		 * m file. 
+		 * Interpret the result
+		 */
 		
 	}
 	
