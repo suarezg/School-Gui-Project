@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,16 +21,23 @@ import javax.swing.JTextField;
 
 public class SaveFile {
 
-	public static void save(Map<String, Component> components, JFrame frame, String startPath) {
+	public static void save(List<JRadioButton> radioButtons, List<JTextField> textfields,
+							List<JComboBox> menus, List<JCheckBox> checkboxes, 
+							JFrame frame, String startPath) {
 		JFileChooser jfc = new JFileChooser();
 		int result = jfc.showSaveDialog(frame);
-		if ( result != JFileChooser.CANCEL_OPTION) {
+		if ( result != JFileChooser.CANCEL_OPTION ) {
 			File file = jfc.getSelectedFile();
-			if (validSave(jfc, file)) 
-				writeFile(components, file);
+			if ( validSave(jfc, file) ) {
+				writeFile(radioButtons, textfields, 
+							menus, checkboxes, file);
+			}
 		}
+		
 	}
 	
+	
+
 	private static boolean validSave(JFileChooser jfc, File file) {
 		boolean canSave = false;
 		if (file.exists()) {
@@ -45,41 +53,71 @@ public class SaveFile {
 		return canSave;
 	}
 	
-	private static void writeFile(Map<String, Component> components, File file) {
-		try {
-			FileWriter writer = new FileWriter(file);
-			Iterator iterator = components.entrySet().iterator();
-			while (iterator.hasNext()) {
-				Entry entry = (Entry) iterator.next();
-				String key = (String) entry.getKey();
-				Component comp = (Component) entry.getValue();
-				if  (comp instanceof JComboBox) {
-					JComboBox menu = (JComboBox) comp;
-					writer.append(key+": " + menu.getSelectedItem()
-							+System.getProperty("line.separator"));	
-				}
-				else if ( comp instanceof JRadioButton) {
-					JRadioButton radio = (JRadioButton) comp;
-					writer.append(key+": " + radio.isSelected() 
-							+System.getProperty("line.separator"));
-				}
-				else if ( comp instanceof JTextField) {
-					JTextField textfield = (JTextField) comp;
-					writer.append(key+": " + textfield.getText() 
-							+System.getProperty("line.separator"));
-				}
-				else if ( comp instanceof JCheckBox ) {
-					JCheckBox checkbox = (JCheckBox) comp;
-					writer.append(key+": " + checkbox.isSelected() 
-					+ System.getProperty("line.separtor"));
-				}
+	private static void writeFile(List<JRadioButton> radioButtons,
+			List<JTextField> textfields, List<JComboBox> menus,
+			List<JCheckBox> checkboxes, File file)  {
+
+			try {
+				FileWriter writer = new FileWriter(file);
+				writeRadios(writer, radioButtons);
+				writeCheckboxes(writer, checkboxes);
+				writeMenus(writer, menus);
+				writeTextFields(writer, textfields);
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			
 	}
 	
-	
+	private static void write(FileWriter writer, String name, String value) 
+						throws IOException{
+		writer.append(name+": ") ;
+		writer.append(value);
+		writer.append(System.getProperty("line.separator"));
+	}
+
+
+	private static void writeTextFields(FileWriter writer,
+			List<JTextField> textfields) throws IOException {
+		for (JTextField textfield : textfields) {
+			String name = textfield.getName();
+			String value = textfield.getText();
+			write(writer, name, value);
+		}
+	}
+
+
+	private static void writeMenus(FileWriter writer, List<JComboBox> menus) 
+						throws IOException{
+		for (JComboBox menu:menus) {
+			String name = menu.getName();
+			String value = (String) menu.getSelectedItem();
+			write(writer, name, value);
+		}
+	}
+
+
+
+	private static void writeCheckboxes(FileWriter writer,
+			List<JCheckBox> checkboxes)  throws IOException {
+		for (JCheckBox checkbox : checkboxes) {
+			String name = checkbox.getName();
+			String value = Boolean.toString(checkbox.isSelected());
+			write(writer, name, value);
+		}
+		
+	}
+
+
+
+	private static void writeRadios(FileWriter writer,
+			List<JRadioButton> radioButtons) throws IOException {
+		for (JRadioButton radio : radioButtons) {
+			String name = radio.getName();
+			String value = Boolean.toString(radio.isSelected());
+			write(writer, name, value);
+		}
+	}
 }

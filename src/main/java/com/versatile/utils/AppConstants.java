@@ -15,5 +15,6 @@ public class AppConstants {
 												+"\nDeveloped by the University of Manitoba";
 	
 	
+	public final static String[] INPUT_NAMES = new String[] {"Input 1", "Input 2"};
 	
 }
