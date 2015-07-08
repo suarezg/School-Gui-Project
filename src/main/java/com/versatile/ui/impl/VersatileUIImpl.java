@@ -29,6 +29,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+import org.jogamp.glg2d.GLG2DPanel;
+
 import net.miginfocom.swing.MigLayout;
 
 import com.jogamp.opengl.GL2;
@@ -42,6 +44,9 @@ import com.versatile.ui.VersatileUI;
 import com.versatile.utils.AppConstants;
 import com.versatile.utils.OpenFile;
 import com.versatile.utils.SaveFile;
+import com.ysystems.ycad.app.ycadv.YcadvPane;
+import com.ysystems.ycad.lib.ydxf.YdxfGet;
+import com.ysystems.ycad.lib.ydxf.YdxfGetBuffer;
 
 public class VersatileUIImpl implements VersatileUI {
 
@@ -74,6 +79,7 @@ public class VersatileUIImpl implements VersatileUI {
 		createButtons();
 		createCanvas();
 		frame.add(main);
+		frame.setTitle("Versatile - Buhler Industries");
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
@@ -97,15 +103,14 @@ public class VersatileUIImpl implements VersatileUI {
 		JMenuItem open = new JMenuItem("Open");
 		open.addActionListener(openListener);
 		JMenuItem save = new JMenuItem("Save");
-		JMenuItem saveAs = new JMenuItem("Save As");
-		saveAs.addActionListener(saveListener);
+		save.addActionListener(saveListener);
 		fileMenu.add(open);
 		fileMenu.add(save);
-		fileMenu.add(saveAs);
 		fileMenu.add(exit);
 		menuBar.add(fileMenu);
 		
 		JMenu helpMenu = new JMenu("Help");
+		helpMenu.setMnemonic(KeyEvent.VK_H);
 		JMenuItem about = new JMenuItem("About");
 		about.addActionListener(aboutListener);
 		helpMenu.add(about);
@@ -235,8 +240,8 @@ public class VersatileUIImpl implements VersatileUI {
 	
 	/**
 	 * 
-	 * @param name
-	 * @return
+	 * @param name indicating the checkbox to retrieve. Name should be unique among the components.
+	 * @return <code>JCheckBox</code>
 	 */
 	private JCheckBox getCheckBox(String name) {
 		boolean found = false;
@@ -252,8 +257,8 @@ public class VersatileUIImpl implements VersatileUI {
 	
 	/**
 	 * 
-	 * @param name
-	 * @return
+	 * @param name indicating which radio button to retrieve. Name should be unique among the components.
+	 * @return <code>JRadioButton</code>
 	 */
 	private JRadioButton getRadioButton(String name) {
 		boolean found = false;
@@ -268,8 +273,8 @@ public class VersatileUIImpl implements VersatileUI {
 	
 	/**
 	 * 
-	 * @param name
-	 * @return
+	 * @param name indicating which textfield to retrieve. Name should be unique among the components.
+	 * @return <code>JTextField</code>
 	 */
 	private JTextField getTextField(String name) {
 		boolean found = false;
@@ -285,8 +290,8 @@ public class VersatileUIImpl implements VersatileUI {
 	
 	/**
 	 * 
-	 * @param name
-	 * @return
+	 * @param name indicating which combobox to retrieve. Name should be unique among the components.
+	 * @return <code>JComboBox</code>
 	 */
 	private JComboBox getComboBox(String name) {
 		boolean found = false;
@@ -325,7 +330,6 @@ public class VersatileUIImpl implements VersatileUI {
 	 */
 	private ActionListener exitListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			System.exit(0);
 		}
 	};
@@ -345,7 +349,6 @@ public class VersatileUIImpl implements VersatileUI {
 	 */
 	private ActionListener runListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			backend.evaluate();
 		}		
 	};
