@@ -17,4 +17,7 @@ public class AppConstants {
 	
 	public final static String[] INPUT_NAMES = new String[] {"Input 1", "Input 2"};
 	
+	public final static String MENU_LABEL = "Select a model:";
+	
+	public final static String COUNTERBALANCE_LABEL = "Counterbalance Value: ";
 }

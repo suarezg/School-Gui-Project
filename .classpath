@@ -33,5 +33,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jogl-2.3"/>
+	<classpathentry kind="lib" path="C:/Users/ginosuarez/Documents/Programming/ycad-1.0.2/lib/ycad.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/glg2d"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

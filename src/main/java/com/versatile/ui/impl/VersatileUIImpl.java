@@ -21,6 +21,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -39,11 +40,14 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.awt.GLJPanel;
 import com.versatile.backend.VersatileBackend;
 import com.versatile.ui.VersatileUI;
 import com.versatile.utils.AppConstants;
+import com.versatile.utils.ObjLoader;
 import com.versatile.utils.OpenFile;
 import com.versatile.utils.SaveFile;
+import com.versatile.utils.WavefrontObjectLoader;
 import com.ysystems.ycad.app.ycadv.YcadvPane;
 import com.ysystems.ycad.lib.ydxf.YdxfGet;
 import com.ysystems.ycad.lib.ydxf.YdxfGetBuffer;
@@ -60,7 +64,13 @@ public class VersatileUIImpl implements VersatileUI {
 	private List<ButtonGroup> radioGroups;
 	private NumberFormat numFormat;
 	private ButtonGroup configGroup; 
-	
+	private JPanel menuPanel;
+	private JPanel radioPanel;
+	private JPanel inputPanel;
+	private JPanel conditionalsPanel;
+	private JPanel buttonsPanel;
+	private GLJPanel canvasPanel;
+	private Map<String, JLabel> labels;
 	
 	public VersatileUIImpl() {
 		createFrame();
@@ -71,6 +81,8 @@ public class VersatileUIImpl implements VersatileUI {
 		numFormat = NumberFormat.getNumberInstance();
 		frame = new JFrame();
 		main = new JPanel(new MigLayout());
+		createLayout();
+		createLabels();
 		createMenuBar();
 		createModelPicker();
 		createConfigurations();
@@ -84,6 +96,39 @@ public class VersatileUIImpl implements VersatileUI {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
+	
+	private void createLayout() {
+		canvasPanel = new GLJPanel();
+		menuPanel = new JPanel(new MigLayout());
+		radioPanel = new JPanel(new MigLayout());
+		inputPanel = new JPanel(new MigLayout());
+		conditionalsPanel = new JPanel(new MigLayout());
+		buttonsPanel = new JPanel(new MigLayout());
+		
+		main.add(canvasPanel, "span 2 5");
+		main.add(menuPanel,"wrap");
+		main.add(radioPanel, "wrap");
+		main.add(inputPanel, "wrap");
+		main.add(conditionalsPanel, "wrap");
+		main.add(buttonsPanel, "wrap");
+		
+	}
+	
+	private void createLabels() {
+		labels = new HashMap<String, JLabel>();
+		JLabel menuLabel = new JLabel(AppConstants.MENU_LABEL);
+		JLabel counterbalanceLabel = new JLabel(AppConstants.COUNTERBALANCE_LABEL);
+		labels.put(menuLabel.getText(), menuLabel);
+		labels.put(counterbalanceLabel.getText(), counterbalanceLabel);
+		
+		/*Create Input Labels*/
+		for (int i = 0; i < AppConstants.INPUT_NAMES.length; i++) {
+			JLabel inputLabel = new JLabel(AppConstants.INPUT_NAMES[i]+":");
+			labels.put(inputLabel.getText(), inputLabel);
+		}
+	
+	}
+	
 	
 	private void initializeLists() {
 		radioButtons = new ArrayList<JRadioButton>();
@@ -122,8 +167,9 @@ public class VersatileUIImpl implements VersatileUI {
 	private void createModelPicker() {
 		JComboBox<String> modelPicker = new JComboBox(AppConstants.USABLE_MODELS);
 		modelPicker.setName("Model Picker");
-		//modelPicker.addActionListener();
-		main.add(modelPicker, "wrap");
+		modelPicker.addItemListener(modelListener);
+		menuPanel.add(labels.get(AppConstants.MENU_LABEL));
+		menuPanel.add(modelPicker, "wrap");
 		menus.add(modelPicker);
 		
 	}
@@ -135,9 +181,9 @@ public class VersatileUIImpl implements VersatileUI {
 			radio.setName(AppConstants.CONFIGURATIONS[i]);
 			configGroup.add(radio);
 			if ( i == (AppConstants.CONFIGURATIONS.length -1))
-				main.add(radio, "wrap");
+				radioPanel.add(radio, "wrap");
 			else
-				main.add(radio);
+				radioPanel.add(radio);
 			radioButtons.add(radio);
 			
 		}
@@ -151,10 +197,14 @@ public class VersatileUIImpl implements VersatileUI {
 			JFormattedTextField input = new JFormattedTextField(numFormat);
 			input.setName(AppConstants.INPUT_NAMES[i]);
 			input.setMinimumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
-			if (i == (AppConstants.INPUT_NAMES.length -1))
-				main.add(input, "wrap");
-			else
-				main.add(input);
+			if (i == (AppConstants.INPUT_NAMES.length -1)) {
+				inputPanel.add(labels.get(AppConstants.INPUT_NAMES[i]+":"));
+				inputPanel.add(input, "wrap");
+			}
+			else {
+				inputPanel.add(labels.get(AppConstants.INPUT_NAMES[i]+":"));
+				inputPanel.add(input);
+			}
 			textfields.add(input);
 		}
 	}
@@ -163,17 +213,20 @@ public class VersatileUIImpl implements VersatileUI {
 		final int INPUT_LENGTH = 100;
 		final int INPUT_HEIGHT = 25;
 		
-		JCheckBox hasCounter = new JCheckBox("Has CounterBalance");
+		JCheckBox hasCounter = new JCheckBox("Has Counterbalance?");
 		hasCounter.setName("Counter Balance Checkbox");
 		hasCounter.addItemListener(counterListener);
-		main.add(hasCounter);
+		conditionalsPanel.add(hasCounter,"wrap");
 		checkboxes.add(hasCounter);
 		
 		JFormattedTextField counterValue = new JFormattedTextField(numFormat);
 		counterValue.setName("Counter Balance Value");
 		counterValue.setMinimumSize(new Dimension(INPUT_LENGTH, INPUT_HEIGHT));
 		counterValue.setVisible(false);
-		main.add(counterValue, "wrap");
+		JLabel counterbalanceLabel = labels.get(AppConstants.COUNTERBALANCE_LABEL);
+		counterbalanceLabel.setVisible(false);
+		conditionalsPanel.add(counterbalanceLabel);
+		conditionalsPanel.add(counterValue, "wrap");
 		textfields.add(counterValue);
 	}
 	
@@ -186,8 +239,8 @@ public class VersatileUIImpl implements VersatileUI {
 		clear.setName("Clear");
 		clear.addActionListener(clearListener);
 
-		main.add(run);
-		main.add(clear, "wrap");
+		buttonsPanel.add(run);
+		buttonsPanel.add(clear, "wrap");
 	}
 	
 	
@@ -397,13 +450,24 @@ public class VersatileUIImpl implements VersatileUI {
 	private ItemListener counterListener = new ItemListener() {
 		public void itemStateChanged(ItemEvent e) {
 			JTextField counterField = getTextField("Counter Balance Value");
-			if (isCounterbalanceSelected()) 
+			if (isCounterbalanceSelected()) {
+				labels.get(AppConstants.COUNTERBALANCE_LABEL).setVisible(true);
 				counterField.setVisible(true);
-			else 
+			}
+			else { 
+				labels.get(AppConstants.COUNTERBALANCE_LABEL).setVisible(false);
 				counterField.setVisible(false);
+			}
 		}
 	};
 	
+	private ItemListener modelListener = new ItemListener() {
+		public void itemStateChanged(ItemEvent e) {
+			// TODO Auto-generated method stub
+			canvasPanel = new GLJPanel();
+			createCanvas();
+		}
+	};
 	
 	
 	/**canvas for openGL
@@ -417,64 +481,41 @@ public class VersatileUIImpl implements VersatileUI {
 		GLCanvas canvas = new GLCanvas(caps);
 		canvas.addGLEventListener(glEventListener);
 		canvas.setSize(new Dimension(400, 400));
-		main.add(canvas, "wrap");
+		canvasPanel.add(canvas, "wrap");
 	}
 	
 	private GLEventListener glEventListener = new GLEventListener() {
 
 		public void display(GLAutoDrawable drawable) {
-			// TODO Auto-generated method stub
-			final GL2 gl = drawable.getGL().getGL2();
-			//drawing top
-			gl.glBegin ( GL2.GL_LINES );
-			gl.glVertex3f( -0.3f, 0.3f, 0 );
-			gl.glVertex3f( 0.3f,0.3f, 0 );
-			
-			gl.glEnd();
-			//drawing bottom
-			gl.glBegin( GL2.GL_LINES );
-			gl.glVertex3f( -0.3f,-0.3f, 0 );
-			gl.glVertex3f( 0.3f,-0.3f, 0 );
-			gl.glEnd();
-			//drawing the right edge
-			gl.glBegin( GL2.GL_LINES );
-			gl.glVertex3f( -0.3f,0.3f, 0 );
-			gl.glVertex3f( -0.3f,-0.3f, 0 );
-			gl.glEnd();
-			//drawing the left edge
-			gl.glBegin( GL2.GL_LINES );
-			gl.glVertex3f( 0.3f,0.3f,0 );
-			gl.glVertex3f( 0.3f,-0.3f,0 );
-			gl.glEnd();
-			//building roof
-			//building lft dia
-			gl.glBegin( GL2.GL_LINES );
-			gl.glVertex3f( 0f,0.6f, 0 );
-			gl.glVertex3f( -0.3f,0.3f, 0 );
-			gl.glEnd();
-			//building rt dia
-			gl.glBegin( GL2.GL_LINES );
-			gl.glVertex3f( 0f,0.6f, 0 );
-			gl.glVertex3f( 0.3f,0.3f, 0 );
-			gl.glEnd();
-			//building door
-			//drawing top
-			gl.glBegin ( GL2.GL_LINES );
-			gl.glVertex3f( -0.05f, 0.05f, 0 );
-			gl.glVertex3f( 0.05f, 0.05f, 0 );
-			
-			gl.glEnd();
-			//drawing the left edge
-			gl.glBegin ( GL2.GL_LINES );
-			gl.glVertex3f( -0.05f, 0.05f, 0 );
-			gl.glVertex3f( -0.05f, -0.3f, 0 );
-			gl.glEnd();
-			//drawing the right edge
-			gl.glBegin ( GL2.GL_LINES );
-			gl.glVertex3f( 0.05f, 0.05f, 0 );
-			gl.glVertex3f( 0.05f, -0.3f, 0 );
-			gl.glEnd();
 
+			final GL2 gl = drawable.getGL().getGL2();
+			ObjLoader obj = new ObjLoader();
+			obj.loadOBJ(gl, AppConstants.PROJECT_DIRECTORY + 
+					"\\src\\main\\resources\\com\\versatile\\application\\models\\tricube.obj");
+			//WavefrontObjectLoader.loadWavefrontObjectAsDisplayList(gl, AppConstants.PROJECT_DIRECTORY+ 
+			//	"\\src\\main\\resources\\com\\versatile\\application\\models\\porsche.obj");
+			
+			/*
+			String model = getSelectedModel();
+			if (model.equals("Model 1")) {
+				ModelCanvas.loadModel1(drawable);
+			}
+			else if (model.equals("Model 2")) {
+				ModelCanvas.loadModel2(drawable);
+			}
+			else if (model.equals("Model 3")) {
+				ModelCanvas.loadModel3(drawable);
+			}
+			else if (model.equals("Model 4")) {
+				ModelCanvas.loadModel4(drawable);
+			}
+			else if (model.equals("Model 5")) {
+				ModelCanvas.loadModel5(drawable);
+			}
+			else if (model.equals("Model 6")) {
+				ModelCanvas.loadModel6(drawable);
+			}
+			*/
 		}
 
 		public void dispose(GLAutoDrawable arg0) {
@@ -495,6 +536,3 @@ public class VersatileUIImpl implements VersatileUI {
 		
 	};
 }
-
-
-
